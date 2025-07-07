@@ -3917,7 +3917,7 @@ function library:colorpicker(properties)
 	local cfg = {
 		name = properties.name or nil,
 		flag = properties.flag or tostring(2 ^ 789),
-		color = properties.color or Color3.new(1, 1, 1), -- Default to white color if not provided
+		color = properties.color or properties.default or Color3.new(1, 1, 1), -- Default to white color if not provided
 		alpha = properties.alpha or 1,
 		callback = properties.callback or function() end,
 		animation = "normal",
