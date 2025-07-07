@@ -25,59 +25,66 @@ This will go through how to use the library in your executor.
 ### Prerequisites
 
 This is how you import the library through the repository.
-* Example:
+
+- Example:
+
   ```lua
   -- EXTRA INFO: You can modify this library its open source. The code is horrendous but have fun.
   -- In order to make configs of your own make the inactivity text your own text you want
-  -- I may implement theming etc in the future if i come back to this. 
-  
-  local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/i77lhm/vaderpaste/refs/heads/main/library.lua"))() 
+  -- I may implement theming etc in the future if i come back to this.
+
+  local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/i77lhm/vaderpaste/refs/heads/main/library.lua"))()
   local flags = library.flags -- access flags from here.
   ```
 
 ### Elements
 
-* Window
+- Window
+
   ```lua
   local window = library:window({
-    name = "vaderpaste", 
+    name = "vaderpaste",
     size = UDim2.fromOffset(500, 650) -- x, y in size
   })
   ```
 
-* Tab
+- Tab
+
   ```lua
   local tab = window:tab({name = "Page"})
   ```
 
-* Section
+- Section
+
   ```lua
   local section = tab:section({
     name = "local",
   })
   ```
 
-* Toggle:
-   ```lua
-   section:toggle({
-        enabled = properties.enabled or nil,
-        name = "Toggle",
-        flag = "ToggleFlag",
-        default = false,
-        callback = function(bool)
-            print(bool)
-            print(flags["ToggleFlag"])
-        end,
-    })
-   ```
+- Toggle:
 
-* Dropdown
+  ```lua
+  section:toggle({
+       enabled = properties.enabled or nil,
+       name = "Toggle",
+       flag = "ToggleFlag",
+       default = false,
+       callback = function(bool)
+           print(bool)
+           print(flags["ToggleFlag"])
+       end,
+   })
+  ```
+
+- Dropdown
+
   ```lua
   section:dropdown({
-        name = "activation", 
-        flag = "legit_aimassistactivation", 
-        items = {"mouse 1", "mouse 2", "always"}, 
-        multi = false, 
+        name = "activation",
+        flag = "legit_aimassistactivation",
+        items = {"mouse 1", "mouse 2", "always"},
+        multi = false,
         callback = function(option)
             print(option) -- Will return a table if you set multi to true, allowing you to select multiple items
             print(flags["legit_aimassistactivation"])
@@ -85,15 +92,16 @@ This is how you import the library through the repository.
     })
   ```
 
-* Slider
+- Slider
+
   ```lua
   section:slider({
-        name = "drop prediction inaccuracy", 
-        suffix = "%", 
-        flag = "legit_bulletdropaccuracy", 
-        default = 90, 
-        min = 0, 
-        max = 100, 
+        name = "drop prediction inaccuracy",
+        suffix = "%",
+        flag = "legit_bulletdropaccuracy",
+        default = 90,
+        min = 0,
+        max = 100,
         interval = 0.5,
         callback = function(num)
             print(num)
@@ -101,7 +109,8 @@ This is how you import the library through the repository.
     })
   ```
 
-* Colorpicker
+- Colorpicker
+
   ```lua
   -- For the colorpicker to be seperate, include a name to it and parent it to the section using section:colorpicker
   -- Else you should do toggle:colorpicker({}) in order to parent it to a toggle.
@@ -116,13 +125,14 @@ This is how you import the library through the repository.
   })
   ```
 
-* Keybinds
+- Keybinds
   ```lua
   -- Same logic with the parenting as the colorpicker, same rules apply.
   section:keybind({
     name = "UI Bind",
     flags = "Keybind Flag",
     default = Enum.KeyCode.End, -- Leave empty for no key.
+    display = "menu", -- Display name for the keybind list
     callback = function(bool)
         print(bool)
         print(flags["Keybind Flag"].Active)

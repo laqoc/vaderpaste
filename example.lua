@@ -246,20 +246,12 @@ do
 	})
 
 	local section = legit:section({ name = "triggerbot", side = "right" })
-	local toggle = section:toggle({
+	section:toggle({
 		subsection = "trigger bot",
 		name = "enabled",
 		flag = "legit_triggerbot",
 		default = false,
 		tooltip = "master switch for trigger bot, helps with shooting by automatically clicking when an enemy intersects your bullet path",
-	})
-	toggle:keybind({
-		subsection = "trigger bot",
-		object = "enabled",
-		name = "trigger bot key",
-		flag = "legit_triggerbotkey",
-		parentflag = "legit_triggerbot",
-		default = Enum.KeyCode.M,
 	})
 	section:slider({
 		subsection = "trigger bot",
@@ -859,7 +851,12 @@ do -- Configs
 			window.toggle_watermark(bool)
 		end,
 	})
-	config:keybind({ name = "UI Bind", default = Enum.KeyCode.End, callback = window.set_menu_visibility })
+	config:keybind({
+		name = "UI Bind",
+		default = Enum.KeyCode.End,
+		display = "menu",
+		callback = window.set_menu_visibility,
+	})
 	config:slider({
 		name = "Colorpicker Animation Speed",
 		flag = "color_picker_anim_speed",

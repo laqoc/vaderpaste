@@ -2241,9 +2241,13 @@ function library:window(properties)
 end
 
 function library:new_keybind(properties)
-	local cfg = { text = properties.name or properties.text or "[mb1] aimbot (hold)" }
+	local cfg = {
+		text = properties.name or properties.text or "aimbot",
+		key = properties.key or nil,
+		mode = properties.mode or "hold",
+	}
 
-	local aimbot = library:create("TextLabel", {
+	local keybind_text = library:create("TextLabel", {
 		Parent = library.keybind_path,
 		Name = "",
 		FontFace = library.font,
@@ -2254,7 +2258,7 @@ function library:new_keybind(properties)
 		Size = UDim2.new(0, 0, 0, 11),
 		TextColor3 = Color3.fromRGB(170, 170, 170),
 		BorderColor3 = Color3.fromRGB(0, 0, 0),
-		Text = "[mb1] aimbot (hold)",
+		Text = "",
 		BackgroundTransparency = 1,
 		Position = UDim2.new(0.5, 0, 0, 8),
 		BorderSizePixel = 0,
@@ -2265,20 +2269,42 @@ function library:new_keybind(properties)
 	})
 
 	local UIPadding = library:create("UIPadding", {
-		Parent = aimbot,
+		Parent = keybind_text,
 		Name = "",
 		PaddingTop = UDim.new(0, 6),
 	})
 
 	function cfg.set_visible(bool)
-		aimbot.Visible = bool
+		keybind_text.Visible = bool
 	end
 
 	function cfg.change_text(text)
-		aimbot.Text = text
+		keybind_text.Text = text
 	end
 
-	cfg.change_text(cfg.text)
+	function keyName(key)
+		local text = tostring(key) ~= "Enums" and (keys[key] or tostring(key):gsub("Enum.", "")) or nil
+		local __text = text and (tostring(text):gsub("KeyCode.", ""):gsub("UserInputType.", ""))
+
+		return __text or "..."
+	end
+
+	-- Shit ass function
+	function cfg.update(n_properties)
+		cfg.change_text(
+			"["
+				.. tostring(keyName(n_properties.key))
+				.. "] "
+				.. tostring(n_properties.text)
+				.. " ("
+				.. tostring(n_properties.mode)
+				.. ")"
+		)
+	end
+
+	cfg.change_text(
+		"[" .. tostring(keyName(cfg.key)) .. "] " .. tostring(cfg.text) .. " (" .. tostring(cfg.mode) .. ")"
+	)
 
 	return cfg
 end
@@ -3021,7 +3047,7 @@ function library:hitpart_picker(properties)
 			BorderColor3 = Color3.fromRGB(0, 0, 0),
 			Size = UDim2.new(0, 50, 0, 44),
 			BorderSizePixel = 0,
-			BackgroundColor3 = Color3.fromRGB(100, 100, 255),
+			BackgroundColor3 = Color3.fromRGB(38, 38, 38),
 		})
 
 		bodyparts.Torso = library:create("TextButton", {
@@ -3179,6 +3205,10 @@ function library:hitpart_picker(properties)
 				cfg.callback(flags[cfg.flag])
 			end
 		end)
+	end
+
+	if #cfg.default > 1 and not cfg.multi then
+		cfg.default = { cfg.default[1] }
 	end
 
 	for _, button in next, cfg.default do
@@ -4639,12 +4669,17 @@ function library:keybind(properties)
 		key = properties.default or properties.key or nil,
 		mode = properties.mode or "toggle",
 		active = properties.default or false,
+		display = properties.displayName or properties.display or properties.name or nil,
 		hold_instances = {},
 	}
 
 	flags[cfg.flag] = {}
 
-	local key = library:new_keybind({})
+	local key = library:new_keybind({
+		text = cfg.display,
+		key = cfg.key,
+		mode = cfg.mode,
+	})
 
 	-- Instances
 	local right_components
@@ -4952,6 +4987,12 @@ function library:keybind(properties)
 		cfg.set_mode("hold")
 		cfg.set_visible(false)
 		cfg.open = false
+
+		key.update({
+			text = cfg.display,
+			key = cfg.key,
+			mode = cfg.mode,
+		})
 	end)
 
 	press.MouseButton1Click:Connect(function()
@@ -4964,6 +5005,12 @@ function library:keybind(properties)
 		cfg.set_mode("toggle")
 		cfg.set_visible(false)
 		cfg.open = false
+
+		key.update({
+			text = cfg.display,
+			key = cfg.key,
+			mode = cfg.mode,
+		})
 	end)
 
 	always.MouseButton1Click:Connect(function()
@@ -4976,6 +5023,12 @@ function library:keybind(properties)
 		cfg.set_mode("always")
 		cfg.set_visible(false)
 		cfg.open = false
+
+		key.update({
+			text = cfg.display,
+			key = cfg.key,
+			mode = cfg.mode,
+		})
 	end)
 
 	keybind.MouseButton2Click:Connect(function()
@@ -5001,6 +5054,11 @@ function library:keybind(properties)
 				cfg.set(input.UserInputType)
 			end
 
+			key.update({
+				text = cfg.display,
+				key = cfg.key,
+				mode = cfg.mode,
+			})
 			cfg.binding:Disconnect()
 			cfg.binding = nil
 		end)
@@ -5045,6 +5103,11 @@ function library:keybind(properties)
 	end)
 
 	cfg.set({ mode = cfg.mode, active = cfg.active, key = cfg.key })
+	key.update({
+		text = cfg.display,
+		key = cfg.key,
+		mode = cfg.mode,
+	})
 
 	library.config_flags[cfg.flag] = cfg.set
 
