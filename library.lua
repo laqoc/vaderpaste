@@ -2815,6 +2815,7 @@ function library:hitpart_picker(properties)
 		type_char = properties.type or "R6",
 		multi = properties.multi or false,
 		callback = properties.callback or function() end,
+		previous_holder = self,
 	}
 
 	flags[cfg.flag] = {}
@@ -3146,6 +3147,32 @@ function library:hitpart_picker(properties)
 		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 	})
 
+	function cfg.set(parts)
+		flags[cfg.flag] = {}
+		for name, button in pairs(bodyparts) do
+			bools[name] = false
+			local glow = button:FindFirstChildOfClass("ImageLabel")
+			if glow then
+				glow.Visible = false
+			end
+			button.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
+		end
+
+		for _, part in pairs(parts) do
+			if bodyparts[part] then
+				bools[part] = true
+				table.insert(flags[cfg.flag], part)
+				local glow = bodyparts[part]:FindFirstChildOfClass("ImageLabel")
+				if glow then
+					glow.Visible = true
+				end
+				bodyparts[part].BackgroundColor3 = themes.preset.accent
+			end
+		end
+
+		cfg.callback(flags[cfg.flag])
+	end
+
 	for name, button in next, bodyparts do
 		bools[name] = false
 
@@ -3171,24 +3198,9 @@ function library:hitpart_picker(properties)
 
 		library:apply_theme(glow, "accent", "ImageColor3")
 
-		button.MouseButton1Click:Connect(function()
+		library:connection(button.MouseButton1Click, function()
 			if not cfg.multi then
-				for otherName, otherButton in pairs(bodyparts) do
-					bools[otherName] = false
-					local otherGlow = otherButton:FindFirstChildOfClass("ImageLabel")
-					if otherGlow then
-						otherGlow.Visible = false
-					end
-					otherButton.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
-				end
-
-				bools[name] = true
-				flags[cfg.flag] = { name }
-
-				glow.Visible = true
-				button.BackgroundColor3 = themes.preset.accent
-
-				cfg.callback(flags[cfg.flag])
+				cfg.set({ name })
 			else
 				bools[name] = not bools[name]
 
@@ -3211,12 +3223,9 @@ function library:hitpart_picker(properties)
 		cfg.default = { cfg.default[1] }
 	end
 
-	for _, button in next, cfg.default do
-		bools[button] = true
-		table.insert(flags[cfg.flag], button)
-		bodyparts[button].BackgroundColor3 = themes.preset.accent
-		bodyparts[button]:FindFirstChildOfClass("ImageLabel").Visible = true
-	end
+	cfg.set(cfg.default)
+	config_flags[cfg.flag] = cfg.set
+	return setmetatable(cfg, library)
 end
 
 function library:toggle(properties)
