@@ -335,9 +335,8 @@ function library:config_list_update()
 	local list = {}
 
 	for idx, file in next, listfiles(library.directory .. "/configs") do
-		local name = file:gsub(library.directory .. "/configs\\", "")
-			:gsub(library.directory .. "\\configs\\", "")
-			:gsub(".cfg", "")
+		local name = file.split(file, "/configs/")[2]
+		name = name.split(name, ".cfg")[1]
 		list[#list + 1] = name
 	end
 
@@ -2788,6 +2787,7 @@ function library:hitpart_picker(properties)
 		flag = properties.flag or "Hitpart",
 		default = properties.default or { "Head" },
 		type_char = properties.type or "R6",
+		multi = properties.multi or false,
 		callback = properties.callback or function() end,
 	}
 
@@ -3146,19 +3146,38 @@ function library:hitpart_picker(properties)
 		library:apply_theme(glow, "accent", "ImageColor3")
 
 		button.MouseButton1Click:Connect(function()
-			bools[name] = not bools[name]
+			if not cfg.multi then
+				for otherName, otherButton in pairs(bodyparts) do
+					bools[otherName] = false
+					local otherGlow = otherButton:FindFirstChildOfClass("ImageLabel")
+					if otherGlow then
+						otherGlow.Visible = false
+					end
+					otherButton.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
+				end
 
-			if bools[name] then
-				table.insert(flags[cfg.flag], name)
+				bools[name] = true
+				flags[cfg.flag] = { name }
+
+				glow.Visible = true
+				button.BackgroundColor3 = themes.preset.accent
+
+				cfg.callback(flags[cfg.flag])
 			else
-				local index = table.find(flags[cfg.flag], name)
-				table.remove(flags[cfg.flag], index)
+				bools[name] = not bools[name]
+
+				if bools[name] then
+					table.insert(flags[cfg.flag], name)
+				else
+					local index = table.find(flags[cfg.flag], name)
+					table.remove(flags[cfg.flag], index)
+				end
+
+				glow.Visible = bools[name]
+				button.BackgroundColor3 = bools[name] and themes.preset.accent or Color3.fromRGB(38, 38, 38)
+
+				cfg.callback(flags[cfg.flag])
 			end
-
-			glow.Visible = bools[name]
-			button.BackgroundColor3 = bools[name] and themes.preset.accent or Color3.fromRGB(38, 38, 38)
-
-			cfg.callback(flags[cfg.flag])
 		end)
 	end
 
@@ -3788,7 +3807,7 @@ function library:dropdown(properties)
 			end
 		end
 
-		dropdown.Text = is_table and table.concat(selected, ",  ") or selected[1] or "nun"
+		dropdown.Text = is_table and table.concat(selected, ",  ") or selected[1] or ""
 		flags[cfg.flag] = is_table and selected or selected[1]
 		cfg.callback(flags[cfg.flag])
 	end

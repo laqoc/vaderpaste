@@ -906,34 +906,15 @@ do -- Configs
 			game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, lp)
 		end,
 	})
-	configs:hitpart_picker({
-		name = "Silent Aim Bone",
-		side = "right",
-		flag = "Hello!",
-		default = { "Head" },
-		type = "R6",
-		callback = function(parts)
-			table.foreach(parts, print)
-		end,
-	})
-	configs:hitpart_picker({
-		name = "Silent Aim Bone",
-		side = "right",
-		flag = "Hello!",
-		default = { "Head" },
-		type = "R15",
-		callback = function(parts)
-			table.foreach(parts, print)
-		end,
-	})
 
 	local configs_section = configs:section({ name = "Configuration System", side = "left" })
+	local dir = library.directory .. "/configs/"
 	library.config_holder = configs_section:dropdown({ name = "Configs", items = {}, flag = "config_name_list" })
 	configs_section:textbox({ flag = "config_name_text_box" })
 	configs_section:button({
 		name = "Create",
 		callback = function()
-			writefile(library.directory .. "/configs/" .. flags["config_name_text_box"] .. ".cfg", library:get_config())
+			writefile(dir .. flags["config_name_text_box"] .. ".cfg", library:get_config())
 			library:config_list_update()
 		end,
 	})
@@ -946,7 +927,7 @@ do -- Configs
 				callback = function(option)
 					print(option)
 					if option == "Yes" then
-						delfile(flags["config_name_list"] .. ".cfg")
+						delfile(dir .. flags["config_name_list"] .. ".cfg")
 						library:config_list_update()
 					end
 				end,
@@ -956,13 +937,13 @@ do -- Configs
 	configs_section:button({
 		name = "Load",
 		callback = function()
-			library:load_config(readfile(flags["config_name_list"] .. ".cfg"))
+			library:load_config(readfile(dir .. flags["config_name_list"] .. ".cfg"))
 		end,
 	})
 	configs_section:button({
 		name = "Save",
 		callback = function()
-			writefile(library.directory .. "/configs/" .. flags["config_name_text_box"] .. ".cfg", library:get_config())
+			writefile(dir .. flags["config_name_text_box"] .. ".cfg", library:get_config())
 			library:config_list_update()
 		end,
 	})
@@ -978,6 +959,30 @@ do -- Configs
 			library:unload()
 		end,
 	})
+
+	configs:hitpart_picker({
+		name = "Multihitpart Picker",
+		side = "left",
+		flag = "multihitpart_picker",
+		default = { "Head" },
+		multi = true,
+		type = "R6",
+		callback = function(parts)
+			table.foreach(parts, print)
+		end,
+	})
+	configs:hitpart_picker({
+		name = "Singlehitpart Picker",
+		side = "right",
+		flag = "singlehitpart_picker",
+		default = { "Head" },
+		multi = false,
+		type = "R15",
+		callback = function(parts)
+			table.foreach(parts, print)
+		end,
+	})
+
 	library:config_list_update()
 end
 
